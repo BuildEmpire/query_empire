@@ -3,9 +3,8 @@ class QueryEmpire
     extend ActiveSupport::Concern
 
     class_methods do
-      def filter(raw_params = {})
-        params = QueryEmpire.params(raw_params.merge(table: self))
-
+      def filter(params = {})
+        params = prepare_params(params)
         results = all
         params.joins.each { |join| results = results.joins join }
         params.includes.each { |include| results = results.includes include }
@@ -17,6 +16,11 @@ class QueryEmpire
         results = results.limit params.limit if params.limit
         results = results.offset params.offset if params.offset
         results
+      end
+
+      def prepare_params(params)
+        return params if params.is_a? QueryEmpire::Params
+        QueryEmpire.params(params.merge(table: self))
       end
     end
   end
