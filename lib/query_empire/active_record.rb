@@ -1,4 +1,4 @@
-module QueryEmpire
+class QueryEmpire
   module ActiveRecord
     extend ActiveSupport::Concern
 

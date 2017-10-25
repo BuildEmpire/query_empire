@@ -1,4 +1,4 @@
-module QueryEmpire
+class QueryEmpire
   class Engine < ::Rails::Engine
     isolate_namespace QueryEmpire
 
