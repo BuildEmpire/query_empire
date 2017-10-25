@@ -4,7 +4,7 @@ class QueryEmpire
 
     class_methods do
       def filter(raw_params = {})
-        params = prepare_params(raw_params)
+        params = QueryEmpire.params(raw_params.merge(table: self))
 
         results = all
         params.joins.each { |join| results = results.joins join }
@@ -17,19 +17,6 @@ class QueryEmpire
         results = results.limit params.limit if params.limit
         results = results.offset(params.offset_f) if params.offset_f
         results
-      end
-
-      private
-
-      def prepare_params(raw_params)
-        params = { table: self }
-        [:filters, :order_by, :order_direction,
-          :columns, :headings, :limit, :page, :offset, :joins,
-          :includes, :scopes].each do |key|
-          params[key] = raw_params[key] if raw_params[key]
-        end
-
-        QueryEmpire::Params.new(params)
       end
     end
   end
