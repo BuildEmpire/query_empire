@@ -1,7 +1,7 @@
 class QueryEmpire::Params
   attr_accessor :table, :filters, :order_by, :order_direction,
     :columns, :headings, :limit, :page, :offset, :joins,
-    :includes, :scopes, :errors
+    :includes, :scopes
 
   def initialize(table:, includes: [], filters: [], joins: [], scopes: [],
     columns: [], order_by: nil, order_direction: nil, headings: false,
@@ -15,9 +15,9 @@ class QueryEmpire::Params
     initialize_order(order_by, order_direction)
     initialize_columns(columns)
     initialize_limit(limit)
-    initialize_offset(offset)
     initialize_headings(headings)
     initialize_page(page)
+    initialize_offset(offset)
   end
 
   def to_json
@@ -36,16 +36,9 @@ class QueryEmpire::Params
     }.to_json
   end
 
-
   def order
     return nil if order_by.nil?
     "#{order_by} #{order_direction}"
-  end
-
-  def offset_f
-    return (page - 1) * limit unless page.blank? or limit.blank?
-    offset unless offset.blank? or !page.blank?
-    nil
   end
 
   private
@@ -88,6 +81,7 @@ class QueryEmpire::Params
   end
 
   def initialize_offset(offset)
+    return @offset = (page - 1) * limit if page && limit
     @offset = Integer(offset) if offset
   end
 
@@ -96,8 +90,8 @@ class QueryEmpire::Params
   end
 
   def initialize_order(order_by, order_direction)
+    @order_direction = order_direction&.upcase if order_direction
     @order_by = order_by if order_by
-    @order_direction = order_direction.upcase if order_direction
   end
 
   def initialize_columns(columns)

@@ -15,7 +15,7 @@ class QueryEmpire
         end
         results = results.order params.order if params.order
         results = results.limit params.limit if params.limit
-        results = results.offset(params.offset_f) if params.offset_f
+        results = results.offset params.offset if params.offset
         results
       end
     end
