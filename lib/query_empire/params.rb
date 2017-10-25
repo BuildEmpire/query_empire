@@ -7,46 +7,17 @@ class QueryEmpire::Params
     columns: [], order_by: nil, order_direction: nil, headings: false,
     limit: nil, page: nil, offset: nil)
 
-    @errors = []
-    @includes = []
-    @filters = []
-    @scopes = []
-    @joins = []
-
-    @table = table
-    @table = @table.constantize if @table.is_a? String
-
-    @joins = find_joins(joins)
-    @includes = find_includes(includes)
-
-    filters.each do |field, values|
-      values.each do |operator, value|
-        field_with_table_name = field.to_s
-        @filters << QueryEmpire::Filter.new(field_with_table_name, operator.to_sym, value)
-      end
-    end
-
-    scopes.each do |*, scope|
-      @scopes << QueryEmpire::Scope.new(
-        name: scope['name'],
-        value: scope['value']
-      )
-    end
-
-    @order_by = order_by unless order_by.blank?
-    @order_direction = order_direction.upcase unless order_direction.blank?
-
-    find_columns(columns)
-
-    if (unknown_columns = (@columns - available_columns)).any?
-      raise ArgumentError, "Wrong columns provided: #{unknown_columns.join(', ')}"
-    end
-
-    find_limit(limit)
-    find_offset(offset)
-
-    @headings = headings
-    @page = Integer(page) if page
+    initialize_table(table)
+    initialize_joins(joins)
+    initialize_includes(includes)
+    initialize_filters(filters)
+    initialize_scopes(scopes)
+    initialize_order(order_by, order_direction)
+    initialize_columns(columns)
+    initialize_limit(limit)
+    initialize_offset(offset)
+    initialize_headings(headings)
+    initialize_page(page)
   end
 
   def to_json
@@ -79,32 +50,74 @@ class QueryEmpire::Params
 
   private
 
-  def find_joins(joins)
+  def initialize_filters(filters)
+    @filters = []
+    filters.each do |field, values|
+      values.each do |operator, value|
+        field_with_table_name = field.to_s
+        @filters << QueryEmpire::Filter.new(field_with_table_name, operator.to_sym, value)
+      end
+    end
+  end
+
+  def initialize_table(table)
+    @table = table
+    @table = "::#{@table.camelize.singularize}".constantize if @table.is_a? String
+  end
+
+  def initialize_joins(joins)
+    @joins = []
     joins = joins.split(',') if joins.is_a? String
-    available_tables(joins)
+    @joins = available_tables(joins)
   end
 
-  def find_includes(includes)
+  def initialize_includes(includes)
+    @includes = []
     includes = includes.split(',') if includes.is_a? String
-    available_tables(includes)
+    @joins = available_tables(includes)
   end
 
-  def find_offset(offset)
+  def initialize_scopes(scopes)
+    @scopes = []
+    scopes.each do |*, scope|
+      @scopes << QueryEmpire::Scope.new(
+        name: scope['name'] || scope[:name],
+        value: scope['value'] || scope[:value]
+      )
+    end
+  end
+
+  def initialize_offset(offset)
     @offset = Integer(offset) if offset
-  rescue StandardError
-    nil
   end
 
-  def find_limit(limit)
+  def initialize_limit(limit)
     @limit = Integer(limit) if limit
-  rescue StandardError
-    nil
   end
 
-  def find_columns(columns)
-    @columns = columns.blank? ? table.columns.map(&:name) : columns
-  rescue StandardError
-    []
+  def initialize_order(order_by, order_direction)
+    @order_by = order_by if order_by
+    @order_direction = order_direction.upcase if order_direction
+  end
+
+  def initialize_columns(columns)
+    @columns = begin
+      columns.blank? ? table.columns.map(&:name) : columns
+    rescue StandardError
+      []
+    end
+
+    if (unknown_columns = (@columns - available_columns)).any?
+      raise ArgumentError, "Wrong columns provided: #{unknown_columns.join(', ')}"
+    end
+  end
+
+  def initialize_headings(headings)
+    @headings = headings
+  end
+
+  def initialize_page(page)
+    @page = Integer(page) if page
   end
 
   def available_columns

@@ -1,5 +1,14 @@
 require "bundler/setup"
-require "query_empire"
+ENV["RAILS_ENV"] = "test"
+
+require File.expand_path("../dummy/config/environment.rb",  __FILE__)
+require 'pry'
+
+Rails.backtrace_cleaner.remove_silencers!
+
+Dir[Rails.root.join("../../spec/support/**/*.rb")].each {|f| require f}
+
+require 'database_cleaner'
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
@@ -11,4 +20,17 @@ RSpec.configure do |config|
   config.expect_with :rspec do |c|
     c.syntax = :expect
   end
+
+  config.before(:suite) do
+    DatabaseCleaner.strategy = :transaction
+    DatabaseCleaner.clean_with(:truncation)
+  end
+
+  config.around(:each) do |example|
+    DatabaseCleaner.cleaning do
+      example.run
+    end
+  end
 end
+
+load File.expand_path("../dummy/db/schema.rb",  __FILE__)

@@ -23,15 +23,17 @@ class QueryEmpire::Filter
       when :neq
         return "#{field} != ?", value
       when :is
-        return "#{field} IS #{value}"
+        return "#{field} IS ?", value
       when :is_not
-        return "#{field} IS NOT #{value}"
+        return "#{field} IS NOT ?", value
       when :like
-        return "lower(#{field}) LIKE lower(?)", value
+        return "#{field} LIKE ?", value
+      when :case_insensitive_like
+        return "lower(#{field}) LIKE lower(?)", value.to_s.downcase
       when :in
-        return "#{field} in (?)", value
+        return "#{field} IN (?)", value
       when :not_in
-        return "#{field} not in (?)", value
+        return "#{field} NOT IN (?)", value
     end
   end
 

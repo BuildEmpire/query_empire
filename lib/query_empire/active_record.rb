@@ -4,23 +4,15 @@ module QueryEmpire
 
     class_methods do
       def filter(raw_params = {})
-
         params = prepare_params(raw_params)
 
         results = all
-        params.joins.each do |join|
-          results = results.joins join
-        end
-        params.includes.each do |include|
-          results = results.includes include
-        end
-        params.filters.each do |filter|
-          results = results.where filter.query
-        end
+        params.joins.each { |join| results = results.joins join }
+        params.includes.each { |include| results = results.includes include }
+        params.filters.each { |filter| results = results.where filter.query }
         params.scopes.each do |_scope|
           results = results.send(_scope.name, _scope.value)
         end
-
         results = results.order params.order if params.order
         results = results.limit params.limit if params.limit
         results = results.offset(params.offset_f) if params.offset_f
