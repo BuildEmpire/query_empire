@@ -11,7 +11,7 @@ class QueryEmpire
     def params(params)
       params = params.to_h.with_indifferent_access
       namespace = self.configuration.parameters_namespace
-      params = params[namespace] if params[:namespace]
+      params = params[namespace] if params[namespace]
       _params = {}
       [:filters, :order_by, :order_direction,
         :columns, :headings, :limit, :page, :offset, :joins,

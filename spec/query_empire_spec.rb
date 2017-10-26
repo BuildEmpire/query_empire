@@ -32,7 +32,7 @@ RSpec.describe QueryEmpire do
 
     context 'parameters_namespace=query_params' do
       it 'allows to parse namespaced params' do
-        res = QueryEmpire.params(params_hash.merge(query_params: params_hash))
+        res = QueryEmpire.params(query_params: params_hash)
         expect(res.table).to eq Person
       end
 
