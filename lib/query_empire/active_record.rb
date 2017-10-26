@@ -20,7 +20,7 @@ class QueryEmpire
 
       def prepare_params(params)
         return params if params.is_a? QueryEmpire::Params
-        QueryEmpire.params(params.merge(table: self))
+        QueryEmpire.params(params, self)
       end
     end
   end

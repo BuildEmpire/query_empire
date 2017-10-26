@@ -8,10 +8,12 @@ class QueryEmpire
   class << self
     attr_accessor :configuration
 
-    def params(params)
-      params = params.to_h.with_indifferent_access
+    def params(params, table=nil)
+      params = params.to_unsafe_h if params.respond_to? :to_unsafe_h
+      params = params.with_indifferent_access
       namespace = self.configuration.parameters_namespace
       params = params[namespace] if params[namespace]
+      params[:table] = table if table
       _params = {}
       [:filters, :order_by, :order_direction,
         :columns, :headings, :limit, :page, :offset, :joins,
@@ -19,10 +21,10 @@ class QueryEmpire
         _params[key] = params[key] if params[key]
       end
       Params.new(_params)
-    rescue StandardError
+    rescue StandardError => e
+      Rails.logger.error e
       nil
     end
-
 
     def configuration
       @configuration ||= Configuration.new

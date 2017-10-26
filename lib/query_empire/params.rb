@@ -37,7 +37,7 @@ class QueryEmpire::Params
   end
 
   def order
-    return nil if order_by.nil?
+    return nil if order_by.blank?
     "#{order_by} #{order_direction}"
   end
 
