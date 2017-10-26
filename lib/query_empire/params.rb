@@ -67,7 +67,7 @@ class QueryEmpire::Params
   def initialize_includes(includes)
     @includes = []
     includes = includes.split(',') if includes.is_a? String
-    @joins = available_tables(includes)
+    @includes = available_tables(includes)
   end
 
   def initialize_scopes(scopes)
