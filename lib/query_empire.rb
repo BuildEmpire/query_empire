@@ -34,11 +34,7 @@ class QueryEmpire
 
     private
     def format_params(params)
-      if params.respond_to? :to_unsafe_h
-        params = params.to_unsafe_h
-      else
-        params = params.to_h
-      end
+      params = params.to_unsafe_h if params.respond_to? :to_unsafe_h
       params = params.with_indifferent_access
       namespace = self.configuration.parameters_namespace
       params = params[namespace] if params[namespace]
