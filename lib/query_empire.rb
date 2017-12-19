@@ -37,7 +37,8 @@ class QueryEmpire
       params = params.to_unsafe_h if params.respond_to? :to_unsafe_h
       params = params.with_indifferent_access
       namespace = self.configuration.parameters_namespace
-      params = params[namespace] if params[namespace]
+      namespaced_params = params.extract!(namespace)
+      params = params.merge namespaced_params[namespace]
       params
     end
   end
