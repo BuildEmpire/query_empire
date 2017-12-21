@@ -21,7 +21,7 @@ class QueryEmpire
       Params.new(_params)
     rescue StandardError => e
       Rails.logger.error e
-      nil
+      raise e
     end
 
     def configuration
@@ -38,7 +38,7 @@ class QueryEmpire
       params = params.with_indifferent_access
       namespace = self.configuration.parameters_namespace
       namespaced_params = params.extract!(namespace)
-      params = params.merge namespaced_params[namespace]
+      params = params.merge(namespaced_params[namespace] || {})
       params
     end
   end
